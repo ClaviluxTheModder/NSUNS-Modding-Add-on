@@ -9,6 +9,8 @@ NSUNS Modding Add-on Is An Addon For Blender
 Add Vertex Color
 Remove Vertex Color
 Add Modifier
+Remove UV Map
+Add UV Map
 ```
 
 Enjoy Using It I Guess
