@@ -25,4 +25,4 @@ Support Version:https://claviluxisthebest.gumroad.com/l/nsunsmoddingtool
 
 ### About Support Version
 
-Uh So Support Version Is A Version Made For Supporting The Add-on And Me Ofc But It Will Also Have Special Features Free Version Not Have So I Think IT Isnt So Expensive For $1 And You Get Special Features But This Support Version Will Only Be Available Until The First Stable Version Will Be Released Like 1.0.1 Will Be When Support Version Will No Longer Be Available So Tommorow Or Other Days I Add The Special Features Join My Discord For News
+Uh So Support Version Is A Version Made For Supporting The Add-on And Me Ofc But It Will Also Have Special Features Free Version Not Have So I Think Its Isnt So Expensive For $1 And You Get Special Features But This Support Version Will Only Be Available Until The First Stable Version Will Be Released Like 1.0.1 Will Be When Support Version Will No Longer Be Available So Tommorow Or Other Days I Add The Special Features Join My Discord For News
