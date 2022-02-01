@@ -15,4 +15,4 @@ Enjoy Using It I Guess
 
 # Installation
 
-Open Blender Open The "Edit" Thing And > Preferences > Add-ons > select the [nsuns_modding_addon.zip](https://github.com/ClaviluxTheModder/NSUNS-Modding-Add-on/releases/tag/v0.0.1) file you downloaded and click the install button,to enable it check the checkbox next to it.
+Open Blender Open The "Edit" Thing And > Preferences > Add-ons > select the [nsuns_modding_addon.zip](https://github.com/ClaviluxTheModder/NSUNS-Modding-Add-on/releases/tag/v0.0.4) file you downloaded and click the install button,to enable it check the checkbox next to it.
