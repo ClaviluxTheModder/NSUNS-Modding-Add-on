@@ -14,7 +14,7 @@ Add UV Map
 Export XFBIN
 ```
 
-Enjoy Using It I Guess
+Enjoy Using It :D
 
 # Installation
 
