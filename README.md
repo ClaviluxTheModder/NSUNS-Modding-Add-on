@@ -1,8 +1,8 @@
 # NSUNS Modding Add-on
 
-## Introducing NSUNS Modding Add-on
+## What Is NSUNS Modding Addon
 
-NSUNS Modding Add-on Is An Addon For Blender
+NSUNS Modding Addon Is An Shortcut Addon For Blender Which Adds A Panel That Contains Existing Features But Its For Those Who Dont Want To Switch Tabs Everytime And In v0.0.6 The UI Is Updated So You Dont Even Have To Be On Object Tab Anymore More Features Coming Soon!
 
 # Current Features
 ```
