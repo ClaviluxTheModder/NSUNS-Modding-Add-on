@@ -10,7 +10,6 @@ Remove Vertex Color
 Add Modifier
 Remove UV Map
 Add UV Map
-Export XFBIN
 ```
 
 Enjoy Using It :D
