@@ -20,8 +20,9 @@ Open Blender Open The "Edit" Thing And > Preferences > Add-ons > select the [nsu
 
 # Other Versions
 
-Support Version:https://claviluxisthebest.gumroad.com/l/nsunsmoddingtool 
+Support Version: No Longer Availiable
 
-### About Support Version
+### What Happend With Support Version?
 
-Uh So Support Version Is A Version Made For Supporting The Add-on And Me Ofc But It Will Also Have Special Features Free Version Not Have So I Think Its Isnt So Expensive For $1 And You Get Special Features But This Support Version Will Only Be Available Until The First Stable Version Will Be Released Like 1.0.1 Will Be When Support Version Will No Longer Be Available So Tommorow Or Other Days I Add The Special Features Join My Discord For News
+So Like What Happend With Support Version Well I Didnt Added Any Feature To It And Id Like To Keep My Addon Free So I Literally deleted it 😂
+But I Will Make Free Other Versions Cuz Why Not 😂
