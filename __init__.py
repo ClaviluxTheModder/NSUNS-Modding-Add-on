@@ -1,276 +1,122 @@
-﻿
-
 bl_info = {
-    "name": "NSUNS Modding Addon",
-    "description": "This Is A Modding Addon For NSUNS Games",
-    "author": "Clavilux",
-    "version": (0, 0, 6),
-    "blender": (2, 90, 0),
-    "location": "",
-    "warning": "Some Bugs May Occur",
-    "wiki_url": "",
-    "tracker_url": "",
-    "category": "Modding"
+    "name" : "NMA",
+    "author" : "Clavilux", 
+    "description" : "",
+    "blender" : (3, 0, 1),
+    "version" : (0, 0, 8),
+    "location" : "",
+    "waring" : "",
+    "doc_url": "", 
+    "tracker_url": "", 
+    "category" : "NSUNS Modding" 
 }
 
 
-###############   IMPORTS
 import bpy
-from bpy.utils import previews
-import os
-import math
+import bpy.utils.previews
 
 
-###############   INITALIZE VARIABLES
-###############   SERPENS FUNCTIONS
-def exec_line(line):
-    exec(line)
 
-def sn_print(tree_name, *args):
-    if tree_name in bpy.data.node_groups:
-        item = bpy.data.node_groups[tree_name].sn_graphs[0].prints.add()
-        for arg in args:
-            item.value += str(arg) + ";;;"
-        for area in bpy.context.screen.areas:
-            area.tag_redraw()
-    print(*args)
+def string_to_int(value):
+    if value.isdigit():
+        return int(value)
+    return 0
 
-def sn_cast_string(value):
-    return str(value)
+def string_to_icon(value):
+    if value in bpy.types.UILayout.bl_rna.functions["prop"].parameters["icon"].enum_items.keys():
+        return bpy.types.UILayout.bl_rna.functions["prop"].parameters["icon"].enum_items[value].value
+    return string_to_int(value)
+    
+def icon_to_string(value):
+    for icon in bpy.types.UILayout.bl_rna.functions["prop"].parameters["icon"].enum_items:
+        if icon.value == value:
+            return icon.name
+    return "NONE"
+    
+def enum_set_to_string(value):
+    if type(value) == set:
+        if len(value) > 0:
+            return "[" + (", ").join(list(value)) + "]"
+        return "[]"
+    return value
+    
+def string_to_type(value, to_type, default):
+    try:
+        value = to_type(value)
+    except:
+        value = default
+    return value
 
-def sn_cast_boolean(value):
-    if type(value) == tuple:
-        for data in value:
-            if bool(data):
-                return True
-        return False
-    return bool(value)
-
-def sn_cast_float(value):
-    if type(value) == str:
-        try:
-            value = float(value)
-            return value
-        except:
-            return float(bool(value))
-    elif type(value) == tuple:
-        return float(value[0])
-    elif type(value) == list:
-        return float(len(value))
-    elif not type(value) in [float, int, bool]:
-        try:
-            value = len(value)
-            return float(value)
-        except:
-            return float(bool(value))
-    return float(value)
-
-def sn_cast_int(value):
-    return int(sn_cast_float(value))
-
-def sn_cast_boolean_vector(value, size):
-    if type(value) in [str, bool, int, float]:
-        return_value = []
-        for i in range(size):
-            return_value.append(bool(value))
-        return tuple(return_value)
-    elif type(value) == tuple:
-        return_value = []
-        for i in range(size):
-            return_value.append(bool(value[i]) if len(value) > i else bool(value[0]))
-        return tuple(return_value)
-    elif type(value) == list:
-        return sn_cast_boolean_vector(tuple(value), size)
-    else:
-        try:
-            value = tuple(value)
-            return sn_cast_boolean_vector(value, size)
-        except:
-            return sn_cast_boolean_vector(bool(value), size)
-
-def sn_cast_float_vector(value, size):
-    if type(value) in [str, bool, int, float]:
-        return_value = []
-        for i in range(size):
-            return_value.append(sn_cast_float(value))
-        return tuple(return_value)
-    elif type(value) == tuple:
-        return_value = []
-        for i in range(size):
-            return_value.append(sn_cast_float(value[i]) if len(value) > i else sn_cast_float(value[0]))
-        return tuple(return_value)
-    elif type(value) == list:
-        return sn_cast_float_vector(tuple(value), size)
-    else:
-        try:
-            value = tuple(value)
-            return sn_cast_float_vector(value, size)
-        except:
-            return sn_cast_float_vector(sn_cast_float(value), size)
-
-def sn_cast_int_vector(value, size):
-    return int(sn_cast_float_vector(value, size))
-
-def sn_cast_color(value, use_alpha):
-    length = 4 if use_alpha else 3
-    value = sn_cast_float_vector(value, length)
-    tuple_list = []
-    for data in range(length):
-        data = value[data] if len(value) > data else value[0]
-        tuple_list.append(sn_cast_float(min(1, max(0, data))))
-    return tuple(tuple_list)
-
-def sn_cast_list(value):
-    if type(value) in [str, tuple, list]:
-        return list(value)
-    elif type(value) in [int, float, bool]:
-        return [value]
-    else:
-        try:
-            value = list(value)
-            return value
-        except:
-            return [value]
-
-def sn_cast_blend_data(value):
-    if type(value) in [tuple, bool, int, float, list]:
-        return None
-    elif type(value) == str:
-        try:
-            value = eval(value)
-            return value
-        except:
-            return None
-    else:
-        return None
-
-def sn_cast_enum(string, enum_values):
-    for item in enum_values:
-        if item[1] == string:
-            return item[0]
-        elif item[0] == string.upper():
-            return item[0]
-    return string
+addon_keymaps = {}
+_icons = None
+panel = {}
 
 
-###############   IMPERATIVE CODE
-###############   EVALUATED CODE
-#######   NSUNS Modding Addon
-class SNA_PT_NSUNS_Modding_Addon_35A0F(bpy.types.Panel):
-    bl_label = "NSUNS Modding Add-on"
-    bl_idname = "SNA_PT_NSUNS_Modding_Addon_35A0F"
-    bl_space_type = "VIEW_3D"
-    bl_region_type = "UI"
-    bl_category = 'NSUNS Modding Addon V0.0.6'
+
+class SNA_PT_NSUNS_MODDING_ADDON_V008_8590D(bpy.types.Panel):
+    bl_label = 'NSUNS Modding Addon v0.0.8'
+    bl_idname = 'SNA_PT_NSUNS_MODDING_ADDON_V008_8590D'
+    bl_space_type = 'VIEW_3D'
+    bl_region_type = 'UI'
+    bl_context = ''
+    bl_category = 'NMA V0.0.8'
     bl_order = 0
-
-
+    bl_options = {'HEADER_LAYOUT_EXPAND'}
+    
+    bl_ui_units_x=0
     @classmethod
     def poll(cls, context):
-        return True
-
+        return not (False)
+    
     def draw_header(self, context):
-        try:
-            layout = self.layout
-        except Exception as exc:
-            print(str(exc) + " | Error in NSUNS Modding Add-on panel header")
-
-    def draw(self, context):
-        try:
-            layout = self.layout
-            op = layout.operator("xfbin_panel.copy_group",text=r"Copy Mesh Properties",emboss=True,depress=False,icon_value=598)
-            op.prop_path = r"xfbin_mesh_data"
-            op.prop_name = r"Mesh Properties"
-            op = layout.operator("xfbin_panel.paste_group",text=r"Overwrite Mesh Properties",emboss=True,depress=False,icon_value=601)
-            op.prop_path = r"xfbin_mesh_data"
-            op.prop_name = r"Mesh Properties"
-            layout.separator(factor=1.0)
-            op = layout.operator("mesh.vertex_color_add",text=r"Add Vertex Color",emboss=True,depress=False,icon_value=31)
-            op = layout.operator("mesh.vertex_color_remove",text=r"Remove Vertex Color",emboss=True,depress=False,icon_value=32)
-            op = layout.operator("object.modifier_add",text=r"Add Modifier",emboss=True,depress=False,icon_value=241)
-            op.type = sn_cast_enum(r"ARMATURE", [("DATA_TRANSFER","Data Transfer","Transfer several types of data (vertex groups, UV maps, vertex colors, custom normals) from one mesh to another"),("MESH_CACHE","Mesh Cache","Deform the mesh using an external frame-by-frame vertex transform cache"),("MESH_SEQUENCE_CACHE","Mesh Sequence Cache","Deform the mesh or curve using an external mesh cache in Alembic format"),("NORMAL_EDIT","Normal Edit","Modify the direction of the surface normals"),("WEIGHTED_NORMAL","Weighted Normal","Modify the direction of the surface normals using a weighting method"),("UV_PROJECT","UV Project","Project the UV map coordinates from the negative Z axis of another object"),("UV_WARP","UV Warp","Transform the UV map using the difference between two objects"),("VERTEX_WEIGHT_EDIT","Vertex Weight Edit","Modify of the weights of a vertex group"),("VERTEX_WEIGHT_MIX","Vertex Weight Mix","Mix the weights of two vertex groups"),("VERTEX_WEIGHT_PROXIMITY","Vertex Weight Proximity","Set the vertex group weights based on the distance to another target object"),("ARRAY","Array","Create copies of the shape with offsets"),("BEVEL","Bevel","Generate sloped corners by adding geometry to the mesh's edges or vertices"),("BOOLEAN","Boolean","Use another shape to cut, combine or perform a difference operation"),("BUILD","Build","Cause the faces of the mesh object to appear or disappear one after the other over time"),("DECIMATE","Decimate","Reduce the geometry density"),("EDGE_SPLIT","Edge Split","Split away joined faces at the edges"),("MASK","Mask","Dynamically hide vertices based on a vertex group or armature"),("MIRROR","Mirror","Mirror along the local X, Y and/or Z axes, over the object origin"),("MULTIRES","Multiresolution","Subdivide the mesh in a way that allows editing the higher subdivision levels"),("REMESH","Remesh","Generate new mesh topology based on the current shape"),("SCREW","Screw","Lathe around an axis, treating the input mesh as a profile"),("SKIN","Skin","Create a solid shape from vertices and edges, using the vertex radius to define the thickness"),("SOLIDIFY","Solidify"," Make the surface thick"),("SUBSURF","Subdivision Surface","Split the faces into smaller parts, giving it a smoother appearance"),("TRIANGULATE","Triangulate","Convert all polygons to triangles"),("WELD","Weld","Find groups of vertices closer then dist and merges them together"),("WIREFRAME","Wireframe","Convert faces into thickened edges"),("ARMATURE","Armature","Deform the shape using an armature object"),("CAST","Cast","Shift the shape towards a predefined primitive"),("CURVE","Curve","Bend the mesh using a curve object"),("DISPLACE","Displace","Offset vertices based on a texture"),("HOOK","Hook","Deform specific points using another object"),("LAPLACIANDEFORM","Laplacian Deform","Deform based a series of anchor points"),("LATTICE","Lattice","Deform using the shape of a lattice object"),("MESH_DEFORM","Mesh Deform","Deform using a different mesh, which acts as a deformation cage"),("SHRINKWRAP","Shrinkwrap","Project the shape onto another object"),("SIMPLE_DEFORM","Simple Deform","Deform the shape by twisting, bending, tapering or stretching"),("SMOOTH","Smooth","Smooth the mesh by flattening the angles between adjacent faces"),("CORRECTIVE_SMOOTH","Smooth Corrective","Smooth the mesh while still preserving the volume"),("LAPLACIANSMOOTH","Smooth Laplacian","Reduce the noise on a mesh surface with minimal changes to its shape"),("SURFACE_DEFORM","Surface Deform","Transfer motion from another mesh"),("WARP","Warp","Warp parts of a mesh to a new location in a very flexible way thanks to 2 specified objects"),("WAVE","Wave","Adds a ripple-like motion to an object’s geometry"),("CLOTH","Cloth",""),("COLLISION","Collision",""),("DYNAMIC_PAINT","Dynamic Paint",""),("EXPLODE","Explode","Break apart the mesh faces and let them follow particles"),("FLUID","Fluid",""),("OCEAN","Ocean","Generate a moving ocean surface"),("PARTICLE_INSTANCE","Particle Instance",""),("PARTICLE_SYSTEM","Particle System","Spawn particles from the shape"),("SOFT_BODY","Soft Body",""),("SURFACE","Surface",""),("SIMULATION","Simulation",""),])
-            layout.separator(factor=1.2000000476837158)
-            op = layout.operator("mesh.uv_texture_remove",text=r"Remove UV Map",emboss=True,depress=False,icon_value=19)
-            op = layout.operator("mesh.uv_texture_add",text=r"Add UV Map",emboss=True,depress=False,icon_value=31)
-            split = layout.split(align=False,factor=0.5)
-            split.enabled = True
-            split.alert = False
-            split.scale_x = 1.0
-            split.scale_y = 1.0
-        except Exception as exc:
-            print(str(exc) + " | Error in NSUNS Modding Add-on panel")
-
-
-#######   0.0.06 Features
-def sn_append_panel_F7D8E(self,context):
-    try:
         layout = self.layout
-        split = layout.split(align=False,factor=0.3467741906642914)
-        split.enabled = True
-        split.alert = False
-        split.scale_x = 1.0
-        split.scale_y = 1.0
-        op = split.operator("export_scene.xfbin",text=r"Export XFBIN",emboss=True,depress=False,icon_value=707)
-        op.filepath = r""
-        op.check_existing = True
-        op.filter_glob = r"*.xfbin"
-        op.collection = r""
-        op.inject_to_xfbin = True
-        op.export_meshes = True
-        op.export_bones = True
-        op.export_textures = True
-        op.inject_to_clump = False
-        op.export_specific_meshes = False
-        op.debug_face_limit = True
-        op.meshes_to_export = []
-    except Exception as exc:
-        print(str(exc) + " | Error in Sna Nsuns Modding Addon 35A0F when adding to panel")
-
-
-class SNA_AddonPreferences_D290B(bpy.types.AddonPreferences):
-    bl_idname = __name__.partition('.')[0]
-
+        
     def draw(self, context):
-        try:
-            layout = self.layout
-            layout.label(text=r"Addon Options Coming Soon",icon_value=197)
-        except Exception as exc:
-            print(str(exc) + " | Error in  addon preferences")
+        layout = self.layout
+        
+        split_DF10B = layout.split(factor=0.5, align=False)
+        split_DF10B.alert = False
+        split_DF10B.enabled = True
+        split_DF10B.use_property_split = False
+        split_DF10B.use_property_decorate = False
+        split_DF10B.scale_x = 1.0
+        split_DF10B.scale_y = 1.0
+        split_DF10B.alignment = 'Expand'.upper()
+        op = layout.operator('mesh.vertex_color_add', text='Add Vertex Color', icon_value=31, emboss=True, depress=False)
+        op = layout.operator('mesh.vertex_color_remove', text='Remove Vertex Color', icon_value=32, emboss=True, depress=False)
+        op = layout.operator('object.modifier_add', text='Add Modifier', icon_value=94, emboss=True, depress=False)
+        split_6D8E0 = layout.split(factor=0.5, align=False)
+        split_6D8E0.alert = False
+        split_6D8E0.enabled = True
+        split_6D8E0.use_property_split = False
+        split_6D8E0.use_property_decorate = False
+        split_6D8E0.scale_x = 1.0
+        split_6D8E0.scale_y = 1.0
+        split_6D8E0.alignment = 'Expand'.upper()
+        op = layout.operator('mesh.uv_texture_remove', text='Remove UV Map', icon_value=32, emboss=True, depress=False)
+        op = layout.operator('mesh.uv_texture_add', text='Add UV Map', icon_value=31, emboss=True, depress=False)
 
 
-###############   REGISTER ICONS
-def sn_register_icons():
-    icons = []
-    bpy.types.Scene.nsuns_modding_addon_icons = bpy.utils.previews.new()
-    icons_dir = os.path.join( os.path.dirname( __file__ ), "icons" )
-    for icon in icons:
-        bpy.types.Scene.nsuns_modding_addon_icons.load( icon, os.path.join( icons_dir, icon + ".png" ), 'IMAGE' )
 
-def sn_unregister_icons():
-    bpy.utils.previews.remove( bpy.types.Scene.nsuns_modding_addon_icons )
-
-
-###############   REGISTER PROPERTIES
-def sn_register_properties():
-    pass
-
-def sn_unregister_properties():
-    pass
-
-
-###############   REGISTER ADDON
 def register():
-    sn_register_icons()
-    sn_register_properties()
-    bpy.utils.register_class(SNA_PT_NSUNS_Modding_Addon_35A0F)
-    bpy.utils.register_class(SNA_AddonPreferences_D290B)
-    bpy.types.SNA_PT_NSUNS_Modding_Addon_35A0F.append(sn_append_panel_F7D8E)
+    
+    global _icons
+    _icons = bpy.utils.previews.new()
+    
+    
+    bpy.utils.register_class(SNA_PT_NSUNS_MODDING_ADDON_V008_8590D)
 
-
-###############   UNREGISTER ADDON
 def unregister():
-    sn_unregister_icons()
-    sn_unregister_properties()
-    bpy.types.SNA_PT_NSUNS_Modding_Addon_35A0F.remove(sn_append_panel_F7D8E)
-    bpy.utils.unregister_class(SNA_AddonPreferences_D290B)
-    bpy.utils.unregister_class(SNA_PT_NSUNS_Modding_Addon_35A0F)
+    
+    global _icons
+    bpy.utils.previews.remove(_icons)
+    
+    wm = bpy.context.window_manager
+    kc = wm.keyconfigs.addon
+    for km, kmi in addon_keymaps.values():
+        km.keymap_items.remove(kmi)
+    addon_keymaps.clear()
+    
+    
+    bpy.utils.unregister_class(SNA_PT_NSUNS_MODDING_ADDON_V008_8590D)
+
