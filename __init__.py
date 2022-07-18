@@ -1,6 +1,6 @@
 bl_info = {
     "name" : "NMA",
-    "author" : "Clavilux, XyapDev", 
+    "author" : "Clavilux", 
     "description" : "",
     "blender" : (3, 0, 1),
     "version" : (0, 0, 8),
@@ -53,9 +53,9 @@ panel = {}
 
 
 
-class SNA_PT_NSUNS_MODDING_ADDON_V008_8590D(bpy.types.Panel):
+class SNA_PT_NSUNS_MODDING_ADDON_V008_91FEB(bpy.types.Panel):
     bl_label = 'NSUNS Modding Addon v0.0.8'
-    bl_idname = 'SNA_PT_NSUNS_MODDING_ADDON_V008_8590D'
+    bl_idname = 'SNA_PT_NSUNS_MODDING_ADDON_V008_91FEB'
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_context = ''
@@ -95,6 +95,7 @@ class SNA_PT_NSUNS_MODDING_ADDON_V008_8590D(bpy.types.Panel):
         split_6D8E0.alignment = 'Expand'.upper()
         op = layout.operator('mesh.uv_texture_remove', text='Remove UV Map', icon_value=32, emboss=True, depress=False)
         op = layout.operator('mesh.uv_texture_add', text='Add UV Map', icon_value=31, emboss=True, depress=False)
+        op = layout.operator('object.remove_lod', text='A Random Button', icon_value=0, emboss=True, depress=False)
 
 
 
@@ -104,7 +105,7 @@ def register():
     _icons = bpy.utils.previews.new()
     
     
-    bpy.utils.register_class(SNA_PT_NSUNS_MODDING_ADDON_V008_8590D)
+    bpy.utils.register_class(SNA_PT_NSUNS_MODDING_ADDON_V008_91FEB)
 
 def unregister():
     
@@ -118,5 +119,5 @@ def unregister():
     addon_keymaps.clear()
     
     
-    bpy.utils.unregister_class(SNA_PT_NSUNS_MODDING_ADDON_V008_8590D)
+    bpy.utils.unregister_class(SNA_PT_NSUNS_MODDING_ADDON_V008_91FEB)
 
